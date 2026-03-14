@@ -93,7 +93,9 @@ export const VideoScrollAnimation = () => {
     requestAnimationFrame(() => {
       const hRatio = canvas.width / img.width;
       const vRatio = canvas.height / img.height;
-      const ratio = Math.max(hRatio, vRatio);
+      // Increase size slightly (1.01 = ~10px) as requested for "flawless" coverage
+      const ratio = Math.max(hRatio, vRatio) * 1.01;
+      
       const centerShiftX = (canvas.width - img.width * ratio) / 2;
       const centerShiftY = (canvas.height - img.height * ratio) / 2;
       
@@ -111,28 +113,38 @@ export const VideoScrollAnimation = () => {
 
   useEffect(() => {
     const setupCanvas = () => {
-      if (canvasRef.current) {
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvasRef.current.width = window.innerWidth * dpr;
-        canvasRef.current.height = window.innerHeight * dpr;
-        renderFrame(frameIndex.get());
-      }
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      
+      // Use screen dimensions for mobile to prevent address bar jitter (stretching)
+      const isActuallyMobile = window.innerWidth < 768;
+      const width = window.innerWidth;
+      const height = isActuallyMobile ? window.screen.height : window.innerHeight;
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      
+      renderFrame(frameIndex.get());
     };
 
-    let resizeTimer: any;
+    let lastWidth = window.innerWidth;
     const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(setupCanvas, 100);
+      // Only re-setup if width changes significantly (e.g. orientation)
+      // This prevents the "stretching" glitch when address bar shows/hides
+      if (Math.abs(window.innerWidth - lastWidth) > 50) {
+        lastWidth = window.innerWidth;
+        setupCanvas();
+      }
     };
 
     window.addEventListener('resize', handleResize);
     setupCanvas();
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimer);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, [isLoaded, images]);
+
 
   return (
     <div className="fixed inset-0 w-full h-full -z-0 bg-black pointer-events-none overflow-hidden">
