@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-black text-white antialiased select-none;
+    font-family: var(--font-mono);
+  }
+}
+
+/* Technical text styling to match reference exactly */
+.tech-label {
+  @apply text-[13px] leading-[1.4] tracking-tight opacity-50 font-mono;
+}
+
+.tech-value {
+  @apply text-[13px] leading-[1.4] tracking-tight opacity-90 font-mono;
+}
+
+.manifesto-body {
+  @apply text-[15px] leading-[1.2] tracking-tight font-mono text-right;
+}
+
+.bottom-text {
+  @apply text-[15px] leading-[1.2] tracking-tight font-mono;
+}
+
+/* Logo styling - bold, rounded, futuristic */
+.logo-text {
+  @apply font-sans font-black text-5xl tracking-[-0.05em] uppercase leading-none;
+  font-variation-settings: 'wght' 900;
+}
